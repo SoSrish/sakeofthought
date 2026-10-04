@@ -19,6 +19,7 @@ window.SOT_DATA = {
     { id: 'shape-6', kind: 'cup', shape: 6, name: 'Chai glass', size: '', price: 379, image: 'images/shape-6.jpg' },
     { id: 'shape-7', kind: 'cup', shape: 7, name: 'Black clay goblet', size: '12.5 cm tall, 5.5 cm wide', price: 649, image: 'images/shape-7.jpg' },
     { id: 'shape-8', kind: 'cup', shape: 8, name: 'Cane-handle cup', size: '2.9 in tall, 2.75 in wide', price: 399, image: 'images/shape-8.jpg' },
+    { id: 'shape-10', kind: 'cup', shape: 10, name: 'Curved Kullhad', size: '', price: 399, image: 'images/shape-10.jpg', fit: 'cover' },
     {
       id: 'family-set', kind: 'family', shape: 9, name: 'Family set',
       size: '6 cups and 1 tray', price: 1299, image: 'images/shape-9.jpg',
