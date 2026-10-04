@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SakeOfThought | Hand-painted terracotta cups and zines</title>
+<meta name="description" content="Hand-painted terracotta cups with caricatures, names and messages, and pocket-size photo zines. Made to order, shipped across India.">
+<meta property="og:title" content="SakeOfThought">
+<meta property="og:description" content="Your story. Your people. Your cup. Hand-painted terracotta cups and pocket-size zines, made to order.">
+<meta property="og:image" content="images/couple-cups.jpg">
+<meta name="theme-color" content="#732F24">
+<link rel="icon" href="images/logo.jpg">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#catalogue">Skip to the catalogue</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="#top">
+      <img src="images/logo.jpg" alt="" width="44" height="44">
+      <span>SakeOfThought</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="#catalogue">Cups</a>
+      <a href="#zines">Zines</a>
+      <a href="#how">How it works</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button class="cart-button" type="button" data-open-cart>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      <span>Cart</span>
+      <span class="cart-count" data-cart-count aria-label="items in cart">0</span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="tagline">Gifting *not* for just the sake of it</p>
+      <h1><span>Your story.</span> <span>Your people.</span> <span>Your cup.</span></h1>
+      <p class="lede">Hand-painted terracotta cups and pocket-size zines, made to order around the person you are gifting.</p>
+      <div class="button-row">
+        <a class="btn btn-light" href="#catalogue">Browse the catalogue</a>
+        <a class="btn btn-outline-light" data-wa="custom" href="#contact" target="_blank" rel="noopener">Request something custom</a>
+      </div>
+    </div>
+    <figure class="taped-photo hero-photo">
+      <img src="images/couple-cups.jpg" alt="Two terracotta cups hand-painted with caricatures and the names Arjun and Megha" width="1097" height="703">
+      <figcaption>A couple set, painted by hand</figcaption>
+      <div class="price-tag" aria-label="Starting at 349 rupees per cup">
+        <span>Starting at</span>
+        <strong>₹349</strong>
+        <span>per cup</span>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<section id="catalogue" class="section section-paper">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Cups and mugs</h2>
+      <p>Pick a shape. Every price is for one piece and already includes a hand-painted caricature and name. Add a message, hobbies or more people when you customise.</p>
+    </div>
+    <div class="product-grid" data-cup-grid></div>
+
+    <div class="painted-examples">
+      <figure class="taped-photo tilt-left">
+        <img src="images/cup-front.jpg" alt="Terracotta cup painted with a caricature and the name Jeh" loading="lazy" width="692" height="922">
+        <figcaption>Caricature and name</figcaption>
+      </figure>
+      <figure class="taped-photo tilt-right">
+        <img src="images/cup-back.jpg" alt="The back of the same cup, painted with a light bulb and a book" loading="lazy" width="692" height="922">
+        <figcaption>Hobbies on the back</figcaption>
+      </figure>
+      <div class="painted-copy">
+        <h3>What we paint</h3>
+        <ul class="price-list" data-style-list></ul>
+        <p>Not covered what you want? Just let us know and we'll make it happen.</p>
+        <a class="btn btn-dark" data-wa="custom" href="#contact" target="_blank" rel="noopener">Ask on WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sets" class="section section-kraft">
+  <div class="wrap sets-grid">
+    <div>
+      <h2>Couple and family sets</h2>
+      <p class="lede">For Diwali and wedding season. Every set comes with name, caricature and message.</p>
+    </div>
+    <div class="set-cards">
+      <article class="set-card">
+        <h3>Couple set</h3>
+        <p>Two cups in the shape you choose.</p>
+        <p class="set-price" data-couple-from></p>
+        <button class="btn btn-dark" type="button" data-configure="shape-2" data-mode="couple">Build a couple set</button>
+      </article>
+      <article class="set-card">
+        <h3>Family set</h3>
+        <p>Six cups and one tray.</p>
+        <p class="set-price" data-family-price></p>
+        <button class="btn btn-dark" type="button" data-configure="family-set">Add a family set</button>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="zines" class="section section-brick">
+  <div class="wrap zines-grid">
+    <div class="zine-photos">
+      <figure class="taped-photo tilt-left"><img src="images/zine-1.jpg" alt="A small photo zine with a childhood photo on the cover" loading="lazy" width="414" height="562"></figure>
+      <figure class="taped-photo tilt-right"><img src="images/zine-2.jpg" alt="A small birthday zine with a dark, sparkly cover" loading="lazy" width="414" height="562"></figure>
+    </div>
+    <div class="zine-copy">
+      <h2>Zines, your pocket-size memory</h2>
+      <p class="lede">Give your photos and take a pocket full of memories. A small printed booklet, <span data-zine-pages></span>, built around one person, one day or one year.</p>
+      <div class="zine-options" data-zine-list></div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="section section-paper">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>How it works</h2>
+    </div>
+    <ol class="steps">
+      <li>
+        <h3>Build your cart</h3>
+        <p>Choose shapes, what to paint, and how many.</p>
+      </li>
+      <li>
+        <h3>Send it on WhatsApp</h3>
+        <p>Proceed to buy opens WhatsApp with your full order written out. Share your reference photos in the same chat.</p>
+      </li>
+      <li>
+        <h3>Confirm and pay in the chat</h3>
+        <p>We confirm the design, shipping and total, then share payment details there. Orders are prepaid.</p>
+      </li>
+      <li>
+        <h3>We paint and ship</h3>
+        <p>Your order reaches you in 10 to 12 days, 15 at most, anywhere in India.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section id="good-to-know" class="section section-kraft">
+  <div class="wrap notes-grid">
+    <div>
+      <h2>Good to know</h2>
+      <ul class="plain-list">
+        <li><strong>Shipping.</strong> We ship across India. The cost depends on your order and is confirmed in the chat.</li>
+        <li><strong>Time.</strong> 10 to 12 days from confirmation, 15 at most.</li>
+        <li><strong>Payment.</strong> Orders are prepaid. Payment details are shared in the WhatsApp chat.</li>
+        <li><strong>Cancellations.</strong> Every piece is made for you, so a confirmed order can't be cancelled.</li>
+        <li><strong>Breakage.</strong> If a piece arrives broken, send us a video showing the damage and we will refund it.</li>
+      </ul>
+    </div>
+    <div id="privacy">
+      <h2>Your privacy</h2>
+      <ul class="plain-list">
+        <li>Your cart stays on your own phone or computer until you send it. Nothing reaches us before you press send in WhatsApp.</li>
+        <li>We use your name, number, address and reference photos only to make and deliver your order. We share them with no one except the courier.</li>
+        <li>We keep a basic record of each order for our accounts, and delete reference photos once the order is delivered.</li>
+        <li>We post a finished piece on Instagram only if you say yes.</li>
+        <li>Want your details removed? Message us on WhatsApp and we will delete them.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer id="contact" class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <img src="images/logo.jpg" alt="" width="64" height="64" loading="lazy">
+      <div>
+        <p class="footer-name">SakeOfThought</p>
+        <p>Gifting *not* for just the sake of it</p>
+      </div>
+    </div>
+    <div class="footer-links">
+      <p class="footer-heading">Questions? Talk to us</p>
+      <a data-wa="question" href="#contact" target="_blank" rel="noopener">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5.2A8.5 8.5 0 1 1 21 11.5z"/></svg>
+        <span data-wa-number>WhatsApp</span>
+      </a>
+      <a data-instagram href="#contact" target="_blank" rel="noopener">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6"/></svg>
+        <span data-instagram-handle>Instagram</span>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<!-- Customise a product -->
+<dialog id="configurator" class="sheet" aria-labelledby="configurator-title">
+  <form method="dialog" class="sheet-inner" data-configurator></form>
+</dialog>
+
+<!-- Cart -->
+<dialog id="cart" class="sheet" aria-labelledby="cart-title">
+  <div class="sheet-inner" data-cart></div>
+</dialog>
+
+<div class="toast" role="status" aria-live="polite" data-toast hidden></div>
+
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
