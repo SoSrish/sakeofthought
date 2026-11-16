@@ -40,6 +40,30 @@
     return cart.items.reduce(function (sum, item) { return sum + lineTotal(item); }, 0);
   }
 
+  /* Coupon or referral code. Known codes (CONFIG.coupons) are applied
+     here; anything else is passed to WhatsApp for her to confirm. */
+  function normaliseCode(value) {
+    return String(value || '').toUpperCase().replace(/[^A-Z0-9_-]/g, '').slice(0, 24);
+  }
+
+  function couponInfo() {
+    var code = details.code;
+    if (!code) return null;
+    var rule = (CONFIG.coupons || {})[code];
+    if (!rule) return { code: code, known: false, off: 0 };
+    var sub = subtotal();
+    if (rule.minSubtotal && sub < rule.minSubtotal) {
+      return { code: code, known: true, off: 0, needs: rule.minSubtotal };
+    }
+    var off = rule.percent ? Math.round(sub * rule.percent / 100) : Math.min(rule.flat || 0, sub);
+    return { code: code, known: true, off: off };
+  }
+
+  function total() {
+    var c = couponInfo();
+    return subtotal() - (c ? c.off : 0);
+  }
+
   function countItems() {
     return cart.items.reduce(function (sum, item) { return sum + item.qty; }, 0);
   }
@@ -52,15 +76,15 @@
     var unit = 'each';
 
     if (p.kind === 'cup' && item.mode === 'couple') {
-      title = 'Couple set, 2 cups: ' + p.name + ' (Shape ' + p.shape + ')';
+      title = 'Couple set, 2 cups: ' + p.name;
       lines.push('Painting: name, caricature and message on both cups');
       unit = 'per set';
     } else if (p.kind === 'cup') {
-      title = p.name + ' (Shape ' + p.shape + ')';
+      title = p.name;
       lines.push('Painting: ' + style(item.styleId).label.toLowerCase());
       if (item.people > 1) lines.push('People on each cup: ' + item.people);
     } else if (p.kind === 'family') {
-      title = p.name + ', ' + p.size + ' (Shape ' + p.shape + ')';
+      title = p.name + ', ' + p.size;
       lines.push('Painting: ' + p.includes.toLowerCase());
       unit = 'per set';
     } else {
@@ -69,13 +93,13 @@
     }
     if (p.size && p.kind === 'cup') lines.push('Size: ' + p.size);
     if (item.note) lines.push('Notes: ' + item.note);
-    return { title: title, lines: lines, unit: unit };
+    return { title: title, lines: lines, unit: unit, shape: p.shape };
   }
 
   /* ---------- cart state ---------- */
 
   var cart = { items: [], ref: '' };
-  var details = { name: '', place: '', neededBy: '', occasion: '' };
+  var details = { name: '', place: '', neededBy: '', occasion: '', code: '' };
   var justSent = false;
 
   function newRef() {
@@ -141,13 +165,21 @@
       var d = describe(item);
       var kind = product(item.productId).kind;
       if (kind === 'zine') hasZines = true; else hasCups = true;
-      out.push((i + 1) + '. *' + d.title + '* x ' + item.qty);
+      out.push((i + 1) + '. *' + d.title + (d.shape ? ' (Shape ' + d.shape + ')' : '') + '* x ' + item.qty);
       d.lines.forEach(function (line) { out.push('   ' + line); });
       out.push('   ' + inr(unitPrice(item)) + ' ' + d.unit + (item.qty > 1 ? ', ' + inr(lineTotal(item)) + ' in total' : ''));
       out.push('');
     });
 
-    out.push('*Subtotal: ' + inr(subtotal()) + '* (shipping to be added)');
+    var coupon = couponInfo();
+    if (coupon && coupon.off) {
+      out.push('Subtotal: ' + inr(subtotal()));
+      out.push('Code ' + coupon.code + ': -' + inr(coupon.off));
+      out.push('*Total: ' + inr(total()) + '* (shipping to be added)');
+    } else {
+      out.push('*Subtotal: ' + inr(subtotal()) + '* (shipping to be added)');
+      if (coupon) out.push('Coupon/referral code: ' + coupon.code + ' (please confirm)');
+    }
     out.push('Order ref: ' + cart.ref);
 
     var extra = [];
@@ -175,6 +207,8 @@
       place: details.place,
       neededBy: details.neededBy,
       occasion: details.occasion,
+      code: details.code,
+      discount: couponInfo() ? couponInfo().off : 0,
       subtotal: subtotal(),
       items: cart.items.map(function (item) {
         var d = describe(item);
@@ -202,13 +236,69 @@
       '</div>';
   }
 
+  /* Card photo slider: the painted example first, then the plain shape.
+     Swipe on phones; dots and arrows everywhere. */
+  function gallery(p, fit) {
+    var slides = [];
+    if (p.painted) slides.push({ src: p.painted, alt: p.name + ', hand-painted with a caricature and name', cls: '', label: 'Painted' });
+    slides.push({ src: p.image, alt: p.name + ', plain shape', cls: fit, label: 'Plain shape' });
+    if (slides.length === 1) {
+      return '<div class="product-media"><img src="' + esc(p.image) + '" alt="' + esc(p.name) + '" loading="lazy"' + fit + '></div>';
+    }
+    var id = 'g-' + p.id;
+    return '<div class="product-media gallery" role="region" aria-roledescription="carousel" aria-label="Photos of ' + esc(p.name) + '">' +
+      '<div class="gallery-track" id="' + id + '" tabindex="0">' +
+      slides.map(function (s, i) {
+        return '<div class="gallery-slide" role="group" aria-roledescription="slide" aria-label="' + (i + 1) + ' of ' + slides.length + ': ' + s.label + '">' +
+          '<img src="' + esc(s.src) + '" alt="' + esc(s.alt) + '" loading="lazy"' + s.cls + '></div>';
+      }).join('') + '</div>' +
+      '<button type="button" class="gallery-arrow prev" data-gallery-step="-1" aria-controls="' + id + '" aria-label="Previous photo" hidden>&#8249;</button>' +
+      '<button type="button" class="gallery-arrow next" data-gallery-step="1" aria-controls="' + id + '" aria-label="Next photo">&#8250;</button>' +
+      '<div class="gallery-dots">' + slides.map(function (s, i) {
+        return '<button type="button" class="gallery-dot' + (i === 0 ? ' is-active' : '') + '" data-gallery-go="' + i + '" aria-controls="' + id + '" aria-label="Show photo ' + (i + 1) + ': ' + s.label + '"' + (i === 0 ? ' aria-current="true"' : '') + '></button>';
+      }).join('') + '</div>' +
+      '</div>';
+  }
+
+  function gallerySync(track) {
+    var box = track.parentNode;
+    var count = track.children.length;
+    var index = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+    index = clamp(index, 0, count - 1);
+    $$('.gallery-dot', box).forEach(function (dot, i) {
+      dot.classList.toggle('is-active', i === index);
+      if (i === index) dot.setAttribute('aria-current', 'true'); else dot.removeAttribute('aria-current');
+    });
+    $('.gallery-arrow.prev', box).hidden = index === 0;
+    $('.gallery-arrow.next', box).hidden = index === count - 1;
+  }
+
+  function galleryGo(track, index) {
+    track.scrollTo({ left: index * track.clientWidth, behavior: 'smooth' });
+  }
+
+  function setupGalleries() {
+    $$('.gallery-track').forEach(function (track) {
+      var timer;
+      track.addEventListener('scroll', function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () { gallerySync(track); }, 60);
+      }, { passive: true });
+      track.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        var i = Math.round(track.scrollLeft / track.clientWidth) + (e.key === 'ArrowRight' ? 1 : -1);
+        galleryGo(track, clamp(i, 0, track.children.length - 1));
+      });
+    });
+  }
+
   function renderCatalogue() {
     var cards = DATA.products.filter(function (p) { return p.kind !== 'zine'; }).map(function (p) {
       var fit = p.fit === 'cover' ? ' class="cover"' : '';
       return '<article class="product-card">' +
-        '<div class="product-media"><img src="' + esc(p.image) + '" alt="' + esc(p.name) + '" loading="lazy"' + fit + '></div>' +
+        gallery(p, fit) +
         '<div class="product-body">' +
-        '<p class="product-shape">Shape ' + p.shape + '</p>' +
         '<h3>' + esc(p.name) + '</h3>' +
         '<p class="product-size">' + esc(p.size || p.hint || '\u00a0') + '</p>' +
         '<div class="product-foot">' +
@@ -217,6 +307,7 @@
         '</div></div></article>';
     });
     $('[data-cup-grid]').innerHTML = cards.join('');
+
 
     var styles = DATA.styles.map(function (s) {
       return '<li><span>' + esc(s.label) + '</span><strong>' + (s.add ? '+' + inr(s.add) : 'Included') + '</strong></li>';
@@ -273,9 +364,9 @@
   function renderConfigurator() {
     var p = product(draft.productId);
     var html = '<div class="sheet-head">' +
-      '<img class="sheet-thumb" src="' + esc(p.image) + '" alt="">' +
+      '<img class="sheet-thumb" src="' + esc(p.painted || p.image) + '" alt="">' +
       '<div><h2 id="configurator-title">' + esc(p.kind === 'zine' ? p.name : p.kind === 'family' ? p.name : 'Customise your cup') + '</h2>' +
-      '<p>' + esc(p.kind === 'cup' ? 'Shape ' + p.shape + ', ' + p.name : p.kind === 'family' ? p.size + '. ' + p.includes + '.' : DATA.zinePages + '. You share the photos in the WhatsApp chat.') + '</p></div>' +
+      '<p>' + esc(p.kind === 'cup' ? p.name : p.kind === 'family' ? p.size + '. ' + p.includes + '.' : DATA.zinePages + '. You share the photos in the WhatsApp chat.') + '</p></div>' +
       '<button type="button" class="icon-btn" data-close aria-label="Close">&times;</button>' +
       '</div><div class="sheet-body">';
 
@@ -405,7 +496,7 @@
       var p = product(item.productId);
       var d = describe(item);
       return '<li class="cart-item" data-key="' + item.key + '">' +
-        '<img src="' + esc(p.image) + '" alt="">' +
+        '<img src="' + esc(p.painted || p.image) + '" alt="">' +
         '<div class="cart-item-main"><h3>' + esc(d.title) + '</h3>' +
         d.lines.map(function (line) { return '<p>' + esc(line) + '</p>'; }).join('') +
         '<div class="cart-item-foot">' + stepper(item.key, item.qty, 'Quantity of ' + d.title) +
@@ -420,6 +511,11 @@
 
     cartEl.innerHTML = head + '<div class="sheet-body">' + notice +
       '<ul class="cart-list">' + list + '</ul>' +
+      '<div class="coupon">' +
+      '<label class="field"><span class="field-label">Coupon or referral code</span>' +
+      '<input type="text" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" value="' + esc(details.code) + '"></label>' +
+      '<p class="coupon-status" data-code-status aria-live="polite"></p>' +
+      '</div>' +
       '<fieldset class="details"><legend class="field-label">Delivery details</legend>' +
       '<p class="details-hint">Optional. You can also share these in the chat.</p>' +
       '<label class="field"><span class="field-label">Your name</span><input type="text" name="name" autocomplete="name" value="' + esc(details.name) + '"></label>' +
@@ -433,11 +529,36 @@
       '<button type="button" class="link-btn" data-clear>Clear cart</button>' +
       '</div>' +
       '<div class="sheet-foot sheet-foot-stack">' +
-      '<div class="subtotal-row"><span>Subtotal <small>' + esc(CONFIG.shippingNote) + '</small></span><strong data-subtotal>' + inr(subtotal()) + '</strong></div>' +
+      '<div data-totals></div>' +
       '<a class="btn btn-whatsapp" data-proceed target="_blank" rel="noopener" href="' + esc(waLink(buildMessage())) + '">' +
       '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5.2A8.5 8.5 0 1 1 21 11.5z"/></svg>' +
       'Proceed to buy on WhatsApp</a>' +
       '</div>';
+    renderTotals();
+  }
+
+  function renderTotals() {
+    var box = $('[data-totals]', cartEl);
+    if (!box) return;
+    var c = couponInfo();
+    var rows = '';
+    if (c && c.off) {
+      rows += '<div class="discount-row"><span>Subtotal</span><span>' + inr(subtotal()) + '</span></div>' +
+        '<div class="discount-row"><span>Code ' + esc(c.code) + '</span><span>&minus;' + inr(c.off) + '</span></div>';
+    }
+    rows += '<div class="subtotal-row"><span>' + (c && c.off ? 'Total' : 'Subtotal') +
+      ' <small>' + esc(CONFIG.shippingNote) + '</small></span><strong data-subtotal>' + inr(total()) + '</strong></div>';
+    box.innerHTML = rows;
+
+    var status = $('[data-code-status]', cartEl);
+    if (status) {
+      var text = '';
+      if (c && c.off) text = 'Code applied: you save ' + inr(c.off) + '.';
+      else if (c && c.needs) text = 'This code works on orders of ' + inr(c.needs) + ' or more.';
+      else if (c) text = 'We\u2019ll check this code and apply it in the WhatsApp chat.';
+      status.textContent = text;
+      status.classList.toggle('is-applied', !!(c && c.off));
+    }
   }
 
   function refreshProceed() {
@@ -447,10 +568,21 @@
 
   cartEl.addEventListener('input', function (e) {
     var name = e.target.name;
+    if (name === 'code') {
+      details.code = normaliseCode(e.target.value);
+      renderTotals();
+      refreshProceed();
+      return;
+    }
     if (name in details) {
       details[name] = e.target.value.trim();
       refreshProceed();
     }
+  });
+
+  /* When the customer leaves the code box, show the code as it will be sent. */
+  cartEl.addEventListener('change', function (e) {
+    if (e.target.name === 'code') e.target.value = details.code;
   });
 
   cartEl.addEventListener('click', function (e) {
@@ -504,6 +636,15 @@
   document.addEventListener('click', function (e) {
     var open = e.target.closest('[data-open-cart]');
     if (open) { toastEl.hidden = true; openCart(); return; }
+    var step = e.target.closest('[data-gallery-step]');
+    var go = e.target.closest('[data-gallery-go]');
+    if (step || go) {
+      var track = document.getElementById((step || go).getAttribute('aria-controls'));
+      var now = Math.round(track.scrollLeft / track.clientWidth);
+      galleryGo(track, step ? clamp(now + Number(step.getAttribute('data-gallery-step')), 0, track.children.length - 1)
+                            : Number(go.getAttribute('data-gallery-go')));
+      return;
+    }
     var configure = e.target.closest('[data-configure]');
     if (configure) openConfigurator(configure.getAttribute('data-configure'), configure.getAttribute('data-mode'));
   });
@@ -515,6 +656,7 @@
 
   loadCart();
   renderCatalogue();
+  setupGalleries();
   renderLinks();
   renderCartCount();
 

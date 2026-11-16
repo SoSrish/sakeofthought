@@ -8,21 +8,22 @@
 
   size: shown on the card and sent in the order message.
   hint: shown on the card only.
+  image: the plain shape, on the shape card.
+  painted: a finished example, in the "How it turns out" strip (optional).
 */
 window.SOT_DATA = {
   products: [
-    { id: 'shape-1', kind: 'cup', shape: 1, name: 'Straight tumbler', size: '', price: 379, image: 'images/shape-1.jpg', fit: 'cover' },
-    { id: 'shape-2', kind: 'cup', shape: 2, name: 'Short cup', size: '6 cm tall, 7 cm wide', price: 349, image: 'images/shape-2.jpg' },
-    { id: 'shape-3', kind: 'cup', shape: 3, name: 'Handled mug (clay)', size: '9 cm tall, 11 cm wide', price: 449, image: 'images/shape-3.jpg' },
-    { id: 'shape-4', kind: 'cup', shape: 4, name: 'Tea cup', size: '', hint: 'Price is for one cup', price: 349, image: 'images/shape-4.jpg' },
-    { id: 'shape-5', kind: 'cup', shape: 5, name: 'Goblet', size: '', price: 599, image: 'images/shape-5.jpg' },
-    { id: 'shape-6', kind: 'cup', shape: 6, name: 'Chai glass', size: '', price: 379, image: 'images/shape-6.jpg' },
-    { id: 'shape-7', kind: 'cup', shape: 7, name: 'Black clay goblet', size: '12.5 cm tall, 5.5 cm wide', price: 649, image: 'images/shape-7.jpg' },
-    { id: 'shape-8', kind: 'cup', shape: 8, name: 'Cane-handle cup', size: '2.9 in tall, 2.75 in wide', price: 399, image: 'images/shape-8.jpg' },
-    { id: 'shape-10', kind: 'cup', shape: 10, name: 'Curved Kullhad', size: '', price: 399, image: 'images/shape-10.jpg', fit: 'cover' },
+    { id: 'shape-1', kind: 'cup', shape: 1, name: 'Straight tumbler', size: '', price: 379, image: 'images/shape-1.jpg', painted: 'images/painted-1.jpg', fit: 'cover' },
+    { id: 'shape-2', kind: 'cup', shape: 2, name: 'Short cup', size: '6 cm tall, 7 cm wide', price: 349, image: 'images/shape-2.jpg', painted: 'images/painted-2.jpg' },
+    { id: 'shape-3', kind: 'cup', shape: 3, name: 'Handled mug (clay)', size: '9 cm tall, 11 cm wide', price: 449, image: 'images/shape-3.jpg', painted: 'images/painted-3.jpg' },
+    { id: 'shape-4', kind: 'cup', shape: 4, name: 'Tea cup', size: '', price: 349, image: 'images/shape-4.jpg', painted: 'images/painted-4.jpg' },
+    { id: 'shape-5', kind: 'cup', shape: 5, name: 'Goblet', size: '', price: 599, image: 'images/shape-5.jpg', painted: 'images/painted-5.jpg' },
+    { id: 'shape-6', kind: 'cup', shape: 6, name: 'Curved Kullhad', size: '', price: 499, image: 'images/shape-6.jpg', painted: 'images/painted-6.jpg', fit: 'cover' },
+    { id: 'shape-7', kind: 'cup', shape: 7, name: 'Black clay goblet', size: '12.5 cm tall, 5.5 cm wide', price: 649, image: 'images/shape-7.jpg', painted: 'images/painted-7.jpg' },
+    { id: 'shape-8', kind: 'cup', shape: 8, name: 'Cane-handle cup', size: '2.9 in tall, 2.75 in wide', price: 399, image: 'images/shape-8.jpg', painted: 'images/painted-8.jpg' },
     {
       id: 'family-set', kind: 'family', shape: 9, name: 'Family set',
-      size: '6 cups and 1 tray', price: 1299, image: 'images/shape-9.jpg',
+      size: '6 cups and 1 tray', price: 1299, image: 'images/shape-9.jpg', painted: 'images/painted-9.jpg',
       includes: 'Name, caricature and message on the set',
     },
 

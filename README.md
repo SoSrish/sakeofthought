@@ -51,6 +51,19 @@ Open `js/products.js`.
 Save, commit, push. Nothing else needs to change; the catalogue, the
 cart and the WhatsApp message all read from this file.
 
+## Coupon and referral codes
+
+The cart has a *Coupon or referral code* box. Whatever the customer types
+goes into the WhatsApp message.
+
+- Codes listed under `coupons` in `js/config.js` are applied on the site:
+  the cart and the message show the discount and the new total.
+- Any other code (a friend's referral code, say) is sent as
+  "please confirm", and you apply it in the chat.
+
+Listed codes are visible in the site's source, so only list codes you are
+happy for anyone to find. Keep personal referral codes off the list.
+
 ## Add or change a product
 
 Copy an entry in `products.js`, give it a new `id`, and put its photo in

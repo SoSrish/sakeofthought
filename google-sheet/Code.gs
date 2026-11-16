@@ -9,7 +9,7 @@
 */
 
 var SHEET_NAME = 'Orders';
-var HEADERS = ['Received', 'Order ref', 'Name', 'Deliver to', 'Needed by', 'Occasion', 'Subtotal (Rs)', 'Items'];
+var HEADERS = ['Received', 'Order ref', 'Name', 'Deliver to', 'Needed by', 'Occasion', 'Code', 'Discount (Rs)', 'Subtotal (Rs)', 'Items'];
 var MAX_TEXT = 500;
 var MAX_ITEMS = 40;
 
@@ -32,6 +32,8 @@ function doPost(e) {
       clean_(order.place),
       clean_(order.neededBy),
       clean_(order.occasion),
+      clean_(order.code),
+      Number(order.discount) || 0,
       Number(order.subtotal) || 0,
       items
     ]);
