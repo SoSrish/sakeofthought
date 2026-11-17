@@ -167,6 +167,15 @@ small { font-size: 13px; color: var(--muted); }
 
 /* ---------- catalogue ---------- */
 
+.dev-badge {
+  display: inline-block; margin-bottom: 18px; padding: 6px 12px; border-radius: 999px;
+  background: var(--bark); color: var(--paper); font-size: 13px; font-weight: 600;
+}
+.bag-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; max-width: 520px; margin-bottom: 28px; }
+.bag-options figure { background: #fff; border: 1px solid var(--line); }
+.bag-options img { width: 100%; aspect-ratio: 1 / 1; object-fit: contain; }
+.bag-options figcaption { padding: 8px 10px 10px; font-size: 14px; background: var(--card); border-top: 1px solid var(--line); }
+.tote-note { margin-top: 24px; max-width: 40em; }
 .product-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .product-card { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); }
 .product-media { position: relative; background: #fff; aspect-ratio: 1 / 1; overflow: hidden; }

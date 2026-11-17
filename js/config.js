@@ -25,6 +25,10 @@ window.SOT_CONFIG = {
     // 'DIWALI10': { percent: 10, minSubtotal: 999 },
   },
 
+  // Tote bags section. true = visible to everyone. Set false to hide it
+  // again (you can still preview it with ?preview=totes).
+  showTotes: true,
+
   // Shown in the cart and in the WhatsApp message.
   shippingNote: 'Shipping is added in the chat, based on your order and pincode.',
 };

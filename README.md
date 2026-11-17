@@ -64,6 +64,25 @@ goes into the WhatsApp message.
 Listed codes are visible in the site's source, so only list codes you are
 happy for anyone to find. Keep personal referral codes off the list.
 
+## Tote bags
+
+The Totes section is built but hidden. `showTotes: false` in
+`js/config.js` keeps it away from customers. To check it on the live site,
+add `?preview=totes` to the address
+(`https://sosrish.github.io/sakeofthought/?preview=totes`); a small
+"Preview" badge shows on the section. Set `showTotes: true` and push to
+launch it.
+
+- The five designs live in `js/products.js` with `kind: 'tote'`.
+- `price: null` shows "Price on WhatsApp" and the message asks for a
+  quote. Put a number there when she has a price.
+- `fields` are the blanks the customer fills in for that design. Add,
+  remove or relabel them freely; the form and the WhatsApp message follow.
+- Photos: `images/tote-<design>-black.jpg` and `-natural.jpg`, plus the
+  blank bags `images/tote-blank-*.jpg`.
+- QR codes: customers say what it should open and send the link in the
+  chat; she makes the QR.
+
 ## Add or change a product
 
 Copy an entry in `products.js`, give it a new `id`, and put its photo in

@@ -32,6 +32,61 @@ window.SOT_DATA = {
       includes: 'Name, caricature and message on the set',
     },
 
+    /* Tote bags. price: null shows "Price on WhatsApp" until she sets one.
+       fields: the blanks the customer fills in for that design.
+         type 'text'  one line, max = characters
+         type 'lines' one entry per line, maxLines entries of max characters */
+    {
+      id: 'tote-receipt', kind: 'tote', name: 'Emotional Baggage', blurb: 'A receipt of your places and people',
+      price: null, image: 'images/tote-receipt-black.jpg',
+      images: { black: 'images/tote-receipt-black.jpg', natural: 'images/tote-receipt-natural.jpg' },
+      fields: [
+        { id: 'name', label: 'Name on the receipt', type: 'text', max: 16, placeholder: 'JETI' },
+        { id: 'items', label: 'Items and how many', type: 'lines', maxLines: 5, max: 26, placeholder: 'First cafe date - 1\nLong drives - 14\nBad jokes - infinite' },
+      ],
+    },
+    {
+      id: 'tote-boarding', kind: 'tote', name: 'Destination: Us', blurb: 'A boarding pass from where you met to where you are',
+      price: null, image: 'images/tote-boarding-black.jpg',
+      images: { black: 'images/tote-boarding-black.jpg', natural: 'images/tote-boarding-natural.jpg' },
+      fields: [
+        { id: 'names', label: 'Passenger names', type: 'text', max: 22, placeholder: 'JETI' },
+        { id: 'from', label: 'Where you met', type: 'text', max: 22, placeholder: 'College canteen' },
+        { id: 'to', label: 'Where you are now', type: 'text', max: 22, placeholder: 'Wherever you are' },
+        { id: 'date', label: 'Date', type: 'text', max: 14, placeholder: '14 Feb 2024' },
+        { id: 'seat', label: 'Seat line (optional)', type: 'text', max: 20, placeholder: 'Window, obviously' },
+      ],
+    },
+    {
+      id: 'tote-rx', kind: 'tote', name: "Doctor's Orders", blurb: 'A prescription of the things that make them better',
+      price: null, image: 'images/tote-rx-black.jpg',
+      images: { black: 'images/tote-rx-black.jpg', natural: 'images/tote-rx-natural.jpg' },
+      fields: [
+        { id: 'patient', label: 'Patient name', type: 'text', max: 16, placeholder: 'JETI' },
+        { id: 'diagnosis', label: 'Diagnosis', type: 'text', max: 14, placeholder: 'Too cute' },
+        { id: 'meds', label: 'Medicines and doses', type: 'lines', maxLines: 4, max: 34, placeholder: 'Chai - twice daily\nLong drives - as needed' },
+        { id: 'doctor', label: 'Doctor (who it is from)', type: 'text', max: 16, placeholder: 'Dr. JETI' },
+      ],
+    },
+    {
+      id: 'tote-ingredients', kind: 'tote', name: 'Made With', blurb: 'An ingredients label for the person you love',
+      price: null, image: 'images/tote-ingredients-black.jpg',
+      images: { black: 'images/tote-ingredients-black.jpg', natural: 'images/tote-ingredients-natural.jpg' },
+      fields: [
+        { id: 'name', label: 'Name', type: 'text', max: 16, placeholder: 'JETI' },
+        { id: 'ingredients', label: 'Ingredients and percentages', type: 'lines', maxLines: 4, max: 22, placeholder: 'Chai 40%\nOverthinking 25%\nChaos 15%' },
+      ],
+    },
+    {
+      id: 'tote-tape', kind: 'tote', name: 'Side A / Side B', blurb: 'A mixtape of your inside jokes',
+      price: null, image: 'images/tote-tape-black.jpg',
+      images: { black: 'images/tote-tape-black.jpg', natural: 'images/tote-tape-natural.jpg' },
+      fields: [
+        { id: 'name', label: 'Whose mixtape', type: 'text', max: 16, placeholder: 'JETI' },
+        { id: 'tracks', label: 'Track list (inside jokes, not real songs)', type: 'lines', maxLines: 8, max: 22, placeholder: 'The auto ride\nYou stole my fries' },
+      ],
+    },
+
     { id: 'zine-5x4', kind: 'zine', name: 'Zine, 5 × 4 in', size: '5 × 4 inches', price: 79, image: 'images/zine-1.jpg' },
     { id: 'zine-8x5', kind: 'zine', name: 'Zine, 8 × 5 in', size: '8 × 5 inches', price: 119, image: 'images/zine-2.jpg' },
   ],
@@ -53,4 +108,9 @@ window.SOT_DATA = {
   coupleSet: { extra: 1 },
 
   zinePages: '8 to 14 pages',
+
+  toteColours: [
+    { id: 'black', label: 'Black bag, white print' },
+    { id: 'natural', label: 'Natural canvas, black print' },
+  ],
 };

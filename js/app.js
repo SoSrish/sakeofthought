@@ -18,6 +18,15 @@
   var product = function (id) { return DATA.products.filter(function (p) { return p.id === id; })[0]; };
   var style = function (id) { return DATA.styles.filter(function (s) { return s.id === id; })[0] || DATA.styles[0]; };
   var cups = function () { return DATA.products.filter(function (p) { return p.kind === 'cup'; }); };
+  var totes = function () { return DATA.products.filter(function (p) { return p.kind === 'tote'; }); };
+  var colour = function (id) { return (DATA.toteColours || []).filter(function (c) { return c.id === id; })[0] || (DATA.toteColours || [])[0]; };
+  /* A product without a price yet (price: null) is quoted on WhatsApp. */
+  var hasPrice = function (p) { return typeof p.price === 'number'; };
+  var itemImage = function (item) {
+    var p = product(item.productId);
+    return (p.images && item.colour && p.images[item.colour]) || p.painted || p.image;
+  };
+  var totesVisible = !!CONFIG.showTotes || /[?&]preview=totes\b/.test(window.location.search);
   var clamp = function (n, lo, hi) { return Math.max(lo, Math.min(hi, n)); };
   var plural = function (n, one, many) { return n === 1 ? one : many; };
 
@@ -29,7 +38,7 @@
 
   function unitPrice(item) {
     var p = product(item.productId);
-    if (p.kind !== 'cup') return p.price;
+    if (p.kind !== 'cup') return hasPrice(p) ? p.price : 0;
     if (item.mode === 'couple') return couplePrice(p);
     return p.price + style(item.styleId).add + (item.people - 1) * DATA.extraPerson.add;
   }
@@ -64,6 +73,14 @@
     return subtotal() - (c ? c.off : 0);
   }
 
+  function unpricedCount() {
+    return cart.items.filter(function (item) { return !hasPrice(product(item.productId)); }).length;
+  }
+
+  function priceText(item, amount) {
+    return hasPrice(product(item.productId)) ? inr(amount) : 'Price in chat';
+  }
+
   function countItems() {
     return cart.items.reduce(function (sum, item) { return sum + item.qty; }, 0);
   }
@@ -83,6 +100,16 @@
       title = p.name;
       lines.push('Painting: ' + style(item.styleId).label.toLowerCase());
       if (item.people > 1) lines.push('People on each cup: ' + item.people);
+    } else if (p.kind === 'tote') {
+      title = 'Tote bag: ' + p.name;
+      lines.push('Bag: ' + colour(item.colour).label.toLowerCase());
+      var custom = item.custom || {};
+      (p.fields || []).forEach(function (f) {
+        var v = custom[f.id];
+        if (!v) return;
+        lines.push(f.label.replace(/ \(.*\)$/, '') + ': ' + (f.type === 'lines' ? v.split('\n').join(' / ') : v));
+      });
+      if (item.qr) lines.push('QR code to open: ' + item.qr);
     } else if (p.kind === 'family') {
       title = p.name + ', ' + p.size;
       lines.push('Painting: ' + p.includes.toLowerCase());
@@ -128,7 +155,8 @@
 
   function sameItem(a, b) {
     return a.productId === b.productId && a.mode === b.mode && a.styleId === b.styleId &&
-      a.people === b.people && a.note === b.note;
+      a.people === b.people && a.note === b.note && (a.colour || '') === (b.colour || '') &&
+      (a.qr || '') === (b.qr || '') && JSON.stringify(a.custom || {}) === JSON.stringify(b.custom || {});
   }
 
   function addToCart(item) {
@@ -160,24 +188,34 @@
     var out = ['Hi ' + CONFIG.businessName + '! I would like to order:', ''];
     var hasCups = false;
     var hasZines = false;
+    var hasTotes = false;
+    var hasQr = false;
 
     cart.items.forEach(function (item, i) {
       var d = describe(item);
       var kind = product(item.productId).kind;
-      if (kind === 'zine') hasZines = true; else hasCups = true;
+      if (kind === 'zine') hasZines = true;
+      else if (kind === 'tote') { hasTotes = true; if (item.qr) hasQr = true; }
+      else hasCups = true;
       out.push((i + 1) + '. *' + d.title + (d.shape ? ' (Shape ' + d.shape + ')' : '') + '* x ' + item.qty);
       d.lines.forEach(function (line) { out.push('   ' + line); });
-      out.push('   ' + inr(unitPrice(item)) + ' ' + d.unit + (item.qty > 1 ? ', ' + inr(lineTotal(item)) + ' in total' : ''));
+      if (hasPrice(product(item.productId))) {
+        out.push('   ' + inr(unitPrice(item)) + ' ' + d.unit + (item.qty > 1 ? ', ' + inr(lineTotal(item)) + ' in total' : ''));
+      } else {
+        out.push('   Price: please share');
+      }
       out.push('');
     });
 
+    var unpriced = unpricedCount();
+    var plusNote = unpriced ? ' + tote price' : '';
     var coupon = couponInfo();
     if (coupon && coupon.off) {
       out.push('Subtotal: ' + inr(subtotal()));
       out.push('Code ' + coupon.code + ': -' + inr(coupon.off));
-      out.push('*Total: ' + inr(total()) + '* (shipping to be added)');
+      out.push('*Total: ' + inr(total()) + plusNote + '* (shipping to be added)');
     } else {
-      out.push('*Subtotal: ' + inr(subtotal()) + '* (shipping to be added)');
+      out.push('*Subtotal: ' + inr(subtotal()) + plusNote + '* (shipping to be added)');
       if (coupon) out.push('Coupon/referral code: ' + coupon.code + ' (please confirm)');
     }
     out.push('Order ref: ' + cart.ref);
@@ -192,7 +230,9 @@
     var photos = [];
     if (hasCups) photos.push('reference photos for the caricatures');
     if (hasZines) photos.push('photos for the zine');
-    out.push('', 'I will send the ' + photos.join(' and the ') + ' in this chat.');
+    if (hasQr) photos.push('link for the QR code');
+    if (photos.length) out.push('', 'I will send the ' + photos.join(' and the ') + ' in this chat.');
+    else if (hasTotes) out.push('', 'I will share anything else for the tote in this chat.');
     return out.join('\n');
   }
 
@@ -240,8 +280,14 @@
      Swipe on phones; dots and arrows everywhere. */
   function gallery(p, fit) {
     var slides = [];
-    if (p.painted) slides.push({ src: p.painted, alt: p.name + ', hand-painted with a caricature and name', cls: '', label: 'Painted' });
-    slides.push({ src: p.image, alt: p.name + ', plain shape', cls: fit, label: 'Plain shape' });
+    if (p.images) {
+      (DATA.toteColours || []).forEach(function (c) {
+        if (p.images[c.id]) slides.push({ src: p.images[c.id], alt: p.name + ' tote, ' + c.label.toLowerCase(), cls: ' class="cover"', label: c.label });
+      });
+      fit = ' class="cover"';
+    }
+    if (!p.images && p.painted) slides.push({ src: p.painted, alt: p.name + ', hand-painted with a caricature and name', cls: '', label: 'Painted' });
+    if (!p.images) slides.push({ src: p.image, alt: p.name + ', plain shape', cls: fit, label: 'Plain shape' });
     if (slides.length === 1) {
       return '<div class="product-media"><img src="' + esc(p.image) + '" alt="' + esc(p.name) + '" loading="lazy"' + fit + '></div>';
     }
@@ -294,7 +340,7 @@
   }
 
   function renderCatalogue() {
-    var cards = DATA.products.filter(function (p) { return p.kind !== 'zine'; }).map(function (p) {
+    var cards = DATA.products.filter(function (p) { return p.kind === 'cup' || p.kind === 'family'; }).map(function (p) {
       var fit = p.fit === 'cover' ? ' class="cover"' : '';
       return '<article class="product-card">' +
         gallery(p, fit) +
@@ -307,6 +353,23 @@
         '</div></div></article>';
     });
     $('[data-cup-grid]').innerHTML = cards.join('');
+
+    var toteGrid = $('[data-tote-grid]');
+    if (toteGrid) {
+      toteGrid.innerHTML = totes().map(function (p) {
+        return '<article class="product-card">' +
+          gallery(p, ' class="cover"') +
+          '<div class="product-body">' +
+          '<h3>' + esc(p.name) + '</h3>' +
+          '<p class="product-size">' + esc(p.blurb || '') + '</p>' +
+          '<div class="product-foot">' +
+          '<span class="price">' + (hasPrice(p) ? inr(p.price) : 'Price on WhatsApp') + '</span>' +
+          '<button class="btn btn-dark btn-small" type="button" data-configure="' + p.id + '" aria-label="Customise ' + esc(p.name) + ' tote">Customise</button>' +
+          '</div></div></article>';
+      }).join('');
+    }
+    $$('[data-totes]').forEach(function (el) { el.hidden = !totesVisible; });
+    $$('[data-totes-preview]').forEach(function (el) { el.hidden = !(totesVisible && !CONFIG.showTotes); });
 
 
     var styles = DATA.styles.map(function (s) {
@@ -357,6 +420,7 @@
     var p = product(productId);
     if (!p) return;
     draft = { productId: productId, mode: p.kind === 'cup' && mode === 'couple' ? 'couple' : 'single', styleId: DATA.styles[0].id, people: 1, qty: 1, note: '' };
+    if (p.kind === 'tote') { draft.colour = DATA.toteColours[0].id; draft.custom = {}; draft.qr = ''; }
     renderConfigurator();
     if (!configurator.open) configurator.showModal();
   }
@@ -364,9 +428,9 @@
   function renderConfigurator() {
     var p = product(draft.productId);
     var html = '<div class="sheet-head">' +
-      '<img class="sheet-thumb" src="' + esc(p.painted || p.image) + '" alt="">' +
-      '<div><h2 id="configurator-title">' + esc(p.kind === 'zine' ? p.name : p.kind === 'family' ? p.name : 'Customise your cup') + '</h2>' +
-      '<p>' + esc(p.kind === 'cup' ? p.name : p.kind === 'family' ? p.size + '. ' + p.includes + '.' : DATA.zinePages + '. You share the photos in the WhatsApp chat.') + '</p></div>' +
+      '<img class="sheet-thumb" data-sheet-thumb src="' + esc(itemImage(draft)) + '" alt="">' +
+      '<div><h2 id="configurator-title">' + esc(p.kind === 'tote' ? 'Customise your tote' : p.kind === 'cup' ? 'Customise your cup' : p.name) + '</h2>' +
+      '<p>' + esc(p.kind === 'tote' ? p.name + '. Fill in what you can, or send it in the chat.' : p.kind === 'cup' ? p.name : p.kind === 'family' ? p.size + '. ' + p.includes + '.' : DATA.zinePages + '. You share the photos in the WhatsApp chat.') + '</p></div>' +
       '<button type="button" class="icon-btn" data-close aria-label="Close">&times;</button>' +
       '</div><div class="sheet-body">';
 
@@ -391,9 +455,35 @@
         stepper('people', draft.people, 'People painted on each cup') + '</div>';
     }
 
+    if (p.kind === 'tote') {
+      html += '<label class="field"><span class="field-label">Design</span><select name="design">' +
+        totes().map(function (t) {
+          return '<option value="' + t.id + '"' + (t.id === p.id ? ' selected' : '') + '>' + esc(t.name) + '</option>';
+        }).join('') + '</select></label>';
+      html += '<fieldset class="field"><legend class="field-label">Bag</legend>' +
+        DATA.toteColours.map(function (c) {
+          return choice('colour', c.id, c.label, '', draft.colour === c.id);
+        }).join('') + '</fieldset>';
+      (p.fields || []).forEach(function (f) {
+        var val = esc(draft.custom[f.id] || '');
+        var ph = esc(f.placeholder || '');
+        if (f.type === 'lines') {
+          html += '<label class="field"><span class="field-label">' + esc(f.label) + '</span>' +
+            '<textarea name="f_' + f.id + '" rows="' + Math.min(f.maxLines, 5) + '" placeholder="' + ph + '">' + val + '</textarea>' +
+            '<small>One per line, up to ' + f.maxLines + ', about ' + f.max + ' characters each.</small></label>';
+        } else {
+          html += '<label class="field"><span class="field-label">' + esc(f.label) + '</span>' +
+            '<input type="text" name="f_' + f.id + '" maxlength="' + f.max + '" placeholder="' + ph + '" value="' + val + '"></label>';
+        }
+      });
+      html += '<label class="field"><span class="field-label">Want a QR code on it? What should it open?</span>' +
+        '<input type="text" name="qr" maxlength="120" placeholder="A song, a photo album, a voice note" value="' + esc(draft.qr) + '">' +
+        '<small>Optional. Send the actual link in the WhatsApp chat and we will make the QR for you.</small></label>';
+    }
+
     html += '<div class="field field-row"><span class="field-label" data-qty-label></span>' + stepper('qty', draft.qty, 'Quantity') + '</div>';
 
-    var noteLabel = p.kind === 'zine' ? 'Who or what is it about? Any words for the cover?' : 'Names, message and anything else to paint';
+    var noteLabel = p.kind === 'zine' ? 'Who or what is it about? Any words for the cover?' : p.kind === 'tote' ? 'Anything else for this tote?' : 'Names, message and anything else to paint';
     html += '<label class="field"><span class="field-label">' + noteLabel + '</span>' +
       '<textarea name="note" rows="3" maxlength="400">' + esc(draft.note) + '</textarea>' +
       '<small>Optional. You can also share this in the chat.</small></label>';
@@ -414,11 +504,13 @@
     var p = product(draft.productId);
     var couple = draft.mode === 'couple';
     $$('[data-single-only]', configForm).forEach(function (el) { el.hidden = couple; });
-    var qtyLabel = p.kind === 'zine' ? 'How many copies' : (couple || p.kind === 'family') ? 'How many sets' : 'How many cups';
+    var qtyLabel = p.kind === 'zine' ? 'How many copies' : p.kind === 'tote' ? 'How many bags' : (couple || p.kind === 'family') ? 'How many sets' : 'How many cups';
     $('[data-qty-label]', configForm).textContent = qtyLabel;
     $$('[data-out="qty"]', configForm).forEach(function (el) { el.textContent = draft.qty; });
     $$('[data-out="people"]', configForm).forEach(function (el) { el.textContent = draft.people; });
-    $('[data-total]', configForm).textContent = inr(lineTotal(draft));
+    $('[data-total]', configForm).textContent = priceText(draft, lineTotal(draft));
+    var thumb = $('[data-sheet-thumb]', configForm);
+    if (thumb) thumb.src = itemImage(draft);
   }
 
   configForm.addEventListener('change', function (e) {
@@ -429,13 +521,34 @@
       $('select[name="shape"]', configForm).focus();
       return;
     }
+    if (t.name === 'design') {
+      var keepColour = draft.colour;
+      draft.productId = t.value; draft.custom = {};
+      draft.colour = keepColour;
+      renderConfigurator();
+      $('select[name="design"]', configForm).focus();
+      return;
+    }
+    if (t.name === 'colour') draft.colour = t.value;
     if (t.name === 'mode') draft.mode = t.value;
     if (t.name === 'style') draft.styleId = t.value;
     syncConfigurator();
   });
 
   configForm.addEventListener('input', function (e) {
-    if (e.target.name === 'note') draft.note = e.target.value.trim();
+    var n = e.target.name;
+    if (n === 'note') draft.note = e.target.value.trim();
+    if (n === 'qr') draft.qr = e.target.value.trim();
+    if (n && n.indexOf('f_') === 0 && draft.custom) {
+      var field = (product(draft.productId).fields || []).filter(function (f) { return 'f_' + f.id === n; })[0];
+      var v = e.target.value;
+      if (field && field.type === 'lines') {
+        v = v.split('\n').map(function (l) { return l.trim(); }).filter(Boolean).slice(0, field.maxLines).join('\n');
+      } else {
+        v = v.trim();
+      }
+      draft.custom[n.slice(2)] = v;
+    }
   });
 
   configForm.addEventListener('click', function (e) {
@@ -462,6 +575,12 @@
       note: draft.note
     };
     if (product(item.productId).kind !== 'cup') { item.mode = 'single'; item.styleId = DATA.styles[0].id; item.people = 1; }
+    if (product(item.productId).kind === 'tote') {
+      item.colour = draft.colour;
+      item.qr = draft.qr;
+      item.custom = {};
+      Object.keys(draft.custom).forEach(function (k) { if (draft.custom[k]) item.custom[k] = draft.custom[k]; });
+    }
     addToCart(item);
     configurator.close();
     toast('Added to your cart', 'View cart');
@@ -496,11 +615,11 @@
       var p = product(item.productId);
       var d = describe(item);
       return '<li class="cart-item" data-key="' + item.key + '">' +
-        '<img src="' + esc(p.painted || p.image) + '" alt="">' +
+        '<img src="' + esc(itemImage(item)) + '" alt="">' +
         '<div class="cart-item-main"><h3>' + esc(d.title) + '</h3>' +
         d.lines.map(function (line) { return '<p>' + esc(line) + '</p>'; }).join('') +
         '<div class="cart-item-foot">' + stepper(item.key, item.qty, 'Quantity of ' + d.title) +
-        '<strong>' + inr(lineTotal(item)) + '</strong></div>' +
+        '<strong>' + esc(priceText(item, lineTotal(item))) + '</strong></div>' +
         '<button type="button" class="link-btn" data-remove="' + item.key + '">Remove</button>' +
         '</div></li>';
     }).join('');
@@ -547,7 +666,7 @@
         '<div class="discount-row"><span>Code ' + esc(c.code) + '</span><span>&minus;' + inr(c.off) + '</span></div>';
     }
     rows += '<div class="subtotal-row"><span>' + (c && c.off ? 'Total' : 'Subtotal') +
-      ' <small>' + esc(CONFIG.shippingNote) + '</small></span><strong data-subtotal>' + inr(total()) + '</strong></div>';
+      ' <small>' + esc(CONFIG.shippingNote) + (unpricedCount() ? ' Tote prices are shared in the chat.' : '') + '</small></span><strong data-subtotal>' + inr(total()) + (unpricedCount() ? ' +' : '') + '</strong></div>';
     box.innerHTML = rows;
 
     var status = $('[data-code-status]', cartEl);
