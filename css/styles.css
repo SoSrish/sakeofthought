@@ -106,6 +106,40 @@ small { font-size: 13px; color: var(--muted); }
 .brand img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
 .brand span { font-family: var(--display); font-size: 30px; font-weight: 700; line-height: 1; letter-spacing: 0.5px; }
 .site-nav { display: none; gap: 26px; margin-left: auto; }
+.cart-button { margin-left: auto; }
+.menu-button {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 44px; height: 44px; margin-left: -6px; border: 0; border-radius: 6px;
+  background: transparent; color: var(--paper); cursor: pointer;
+}
+.menu-button:hover { background: rgba(246, 238, 227, 0.12); }
+.menu-button .icon-close { display: none; }
+.menu-button[aria-expanded="true"] .icon-open { display: none; }
+.menu-button[aria-expanded="true"] .icon-close { display: block; }
+
+/* Narrow phones: the cart shows as icon + count so the name fits */
+@media (max-width: 479px) {
+  .header-row { gap: 10px; }
+  .brand span { font-size: 27px; }
+  .cart-button { padding: 6px 10px; }
+  .cart-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* Phone menu: drops down under the header */
+@media (max-width: 899px) {
+  .site-nav.is-open {
+    display: flex; flex-direction: column; gap: 0;
+    position: absolute; left: 0; right: 0; top: 100%;
+    margin: 0; padding: 6px var(--gutter) 14px;
+    background: var(--brick); border-top: 1px solid rgba(246, 238, 227, 0.25);
+    box-shadow: 0 14px 24px rgba(30, 10, 5, 0.35);
+  }
+  .site-nav.is-open a {
+    min-height: 52px; font-size: 18px; border-bottom: 1px solid rgba(246, 238, 227, 0.18);
+  }
+  .site-nav.is-open a:last-child { border-bottom: 0; }
+  .site-nav.is-open a[hidden] { display: none; }
+}
 .site-nav a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; font-weight: 500; font-size: 15px; }
 .site-nav a:hover { text-decoration: underline; text-underline-offset: 6px; }
 .cart-button {
@@ -386,6 +420,8 @@ textarea { resize: vertical; }
 @media (min-width: 900px) {
   .section { padding: 88px 0; }
   .site-nav { display: flex; }
+  .cart-button { margin-left: 0; }
+  .menu-button { display: none; }
   .hero { padding: 56px 0 104px; }
   .hero-grid { grid-template-columns: 1.05fr 1fr; gap: 56px; }
   .painted-examples { grid-template-columns: 220px 220px 1fr; gap: 36px; align-items: center; margin-top: 88px; }

@@ -773,6 +773,33 @@
     dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });
   });
 
+  /* ---------- phone menu ---------- */
+
+  var nav = $('[data-nav]');
+  var menuButton = $('[data-menu-toggle]');
+
+  function setMenu(open) {
+    if (!nav || !menuButton) return;
+    nav.classList.toggle('is-open', open);
+    menuButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+    menuButton.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+
+  if (menuButton) {
+    menuButton.addEventListener('click', function () {
+      setMenu(!nav.classList.contains('is-open'));
+    });
+    nav.addEventListener('click', function (e) {
+      if (e.target.closest('a')) setMenu(false);
+    });
+    document.addEventListener('click', function (e) {
+      if (nav.classList.contains('is-open') && !e.target.closest('.site-header')) setMenu(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && nav.classList.contains('is-open')) { setMenu(false); menuButton.focus(); }
+    });
+  }
+
   loadCart();
   renderCatalogue();
   setupGalleries();
