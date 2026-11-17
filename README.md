@@ -83,6 +83,14 @@ launch it.
 - QR codes: customers say what it should open and send the link in the
   chat; she makes the QR.
 
+## FAQ and the top banner
+
+- The FAQ is plain HTML in `index.html` (section `id="faq"`). Each question
+  is a `<details>` block: copy one to add a question, delete one to remove
+  it. The QR question has `data-totes`, so it hides when totes are hidden.
+- The banner text and its end date are in `js/config.js` under `banner`.
+  It disappears by itself after `until`. Set `text: ''` to switch it off.
+
 ## Add or change a product
 
 Copy an entry in `products.js`, give it a new `id`, and put its photo in

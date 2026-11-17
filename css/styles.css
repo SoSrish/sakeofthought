@@ -100,6 +100,10 @@ small { font-size: 13px; color: var(--muted); }
 
 /* ---------- header ---------- */
 
+.announce {
+  margin: 0; padding: 9px var(--gutter); text-align: center;
+  background: var(--bark); color: var(--paper); font-size: 14px; font-weight: 500; line-height: 1.4;
+}
 .site-header { position: sticky; top: 0; z-index: 20; background: var(--brick); color: var(--paper); }
 .header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; min-height: 44px; }
@@ -297,6 +301,16 @@ small { font-size: 13px; color: var(--muted); }
 /* ---------- good to know ---------- */
 
 .notes-grid { display: grid; gap: 44px; }
+.faq { margin-top: 18px; border-top: 1px solid rgba(58, 26, 18, 0.25); max-width: 40em; }
+.faq details { border-bottom: 1px solid rgba(58, 26, 18, 0.25); }
+.faq summary {
+  list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  min-height: 52px; padding: 10px 0; font-weight: 600;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '+'; font-size: 24px; font-weight: 400; line-height: 1; color: var(--brick); flex: none; }
+.faq details[open] summary::after { content: '\2212'; }
+.faq details p { padding: 0 0 16px; max-width: 36em; }
 .plain-list { display: grid; gap: 12px; margin-top: 18px; max-width: 36em; }
 .plain-list li { padding-left: 18px; position: relative; }
 .plain-list li::before { content: ''; position: absolute; left: 0; top: 0.65em; width: 7px; height: 7px; border-radius: 50%; background: var(--brick); }

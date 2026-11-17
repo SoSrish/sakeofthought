@@ -773,6 +773,21 @@
     dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });
   });
 
+  /* ---------- order-by banner ---------- */
+
+  function renderBanner() {
+    var el = $('[data-banner]');
+    var b = CONFIG.banner;
+    if (!el || !b || !b.text) return;
+    if (b.until) {
+      var now = new Date();
+      var today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      if (today > b.until) return;
+    }
+    el.textContent = b.text;
+    el.hidden = false;
+  }
+
   /* ---------- phone menu ---------- */
 
   var nav = $('[data-nav]');
@@ -801,6 +816,7 @@
   }
 
   loadCart();
+  renderBanner();
   renderCatalogue();
   setupGalleries();
   renderLinks();

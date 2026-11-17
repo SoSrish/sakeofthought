@@ -29,6 +29,14 @@ window.SOT_CONFIG = {
   // again (you can still preview it with ?preview=totes).
   showTotes: true,
 
+  // Strip at the very top of the page, for gifting seasons.
+  // It hides itself after the `until` date (YYYY-MM-DD).
+  // To switch it off, set text to ''.
+  banner: {
+    text: 'Christmas gifts: order by 10 December so they arrive in time',
+    until: '2026-12-10',
+  },
+
   // Shown in the cart and in the WhatsApp message.
   shippingNote: 'Shipping is added in the chat, based on your order and pincode.',
 };
