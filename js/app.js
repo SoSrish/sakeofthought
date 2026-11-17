@@ -91,7 +91,7 @@
       title = p.name;
       lines.push(DATA.zinePages);
     }
-    if (p.size && p.kind === 'cup') lines.push('Size: ' + p.size);
+    if (p.size && p.kind === 'cup') lines.push('Capacity: ' + p.size);
     if (item.note) lines.push('Notes: ' + item.note);
     return { title: title, lines: lines, unit: unit, shape: p.shape };
   }
@@ -373,7 +373,7 @@
     if (p.kind === 'cup') {
       html += '<label class="field"><span class="field-label">Shape</span><select name="shape">' +
         cups().map(function (c) {
-          return '<option value="' + c.id + '"' + (c.id === p.id ? ' selected' : '') + '>' + esc(c.name) + ', ' + inr(c.price) + '</option>';
+          return '<option value="' + c.id + '"' + (c.id === p.id ? ' selected' : '') + '>' + esc(c.name + (c.size ? ' (' + c.size + ')' : '')) + ', ' + inr(c.price) + '</option>';
         }).join('') + '</select></label>';
 
       html += '<fieldset class="field"><legend class="field-label">Order as</legend>' +
